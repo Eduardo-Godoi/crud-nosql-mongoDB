@@ -12,7 +12,7 @@ def check_data(request_data: dict):
 
     if len(request_data) == 4:
         title, author, tags, content = request_data.values()
-        if type(title) != str or type(author) != str or type(tags) != str or type(content) != str:
+        if type(title) != str or type(author) != str or type(tags) != list or type(content) != str:
             raise ValueSentError
 
 
@@ -41,9 +41,12 @@ def create_a_new_post() -> dict:
 def show_posts(id=None) -> dict:
     try:
         if id:
-            if id > Post.length_collection:
+
+            if id not in Post.list_id():
                 raise ReceivedIdError
+
             post = jsonify(Post.get_post_by_id(id))
+
             return post, 200
 
         all_posts = Post.show_all_posts()
@@ -51,7 +54,7 @@ def show_posts(id=None) -> dict:
         return jsonify(all_posts), 200
 
     except ReceivedIdError:
-        return {'msg': f'O id recebido é maior que {Post.length_collection}'}, 404
+        return {'msg': 'O id do Post recebido não foi encontrado!'}, 404
 
 
 def update(id: int) -> dict:
@@ -61,7 +64,7 @@ def update(id: int) -> dict:
 
         check_data(new_data)
 
-        if id > Post.length_collection:
+        if id not in Post.list_id():
             raise ReceivedIdError
 
         updated_publication = Post.update_post(id, new_data)
@@ -69,15 +72,14 @@ def update(id: int) -> dict:
         return jsonify(updated_publication), 200
 
     except ReceivedIdError:
-        number = Post.length_collection
-        return {'msg': f'O id recebido é maior que {number}, envie um id menor'}, 404
+        return {'msg': 'O id do Post recebido não foi encontrado!'}, 404
 
     except KeySentError:
         return {'msg': f'Verifique as chaves enviadas chaves aceitas title, author, tags, content'}, 400
 
 def delete(id: int) -> dict:
     try:
-        if id not in Post.list_id:
+        if id not in Post.list_id():
             raise ReceivedIdError
 
         post = Post.delete_post(id)

@@ -13,7 +13,7 @@ db = client.kenzie
 class Post():
     current_date_time = datetime.now().strftime('%d/%m/%Y %H:%M')
     length_collection = db.posts.count()
-    list_id = [item['_id'] for item in list(db.posts.find())]
+
 
     def __init__(self, title: str, author: str, tags: str, content: str):
         self.title = title
@@ -36,9 +36,10 @@ class Post():
 
     @staticmethod
     def get_post_by_id(id: int) -> list:
-        post_list = list(db.posts.find())
 
-        post = [post for post in post_list if post['_id'] == id]
+        data = {'_id': id}
+
+        post = db.posts.find_one(data)
 
         return post
 
@@ -57,3 +58,9 @@ class Post():
 
         db.posts.delete_one(data)
         return data
+
+    def list_id() -> list:
+        data = list(db.posts.find())
+        item = [item['_id'] for item in data]
+
+        return item
